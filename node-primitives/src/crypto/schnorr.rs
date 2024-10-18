@@ -1,45 +1,35 @@
- // This file is part of BoolNetwork.
- 
- // Copyright (C) BoolNetwork (HK) Ltd.
- // SPDX-License-Identifier: Apache-2.0
- 
- // Licensed under the Apache License, Version 2.0 (the "License");
- // you may not use this file except in compliance with the License.
- // You may obtain a copy of the License at
- 
- // 	http://www.apache.org/licenses/LICENSE-2.0
- 
- // Unless required by applicable law or agreed to in writing, software
- // distributed under the License is distributed on an "AS IS" BASIS,
- // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- // See the License for the specific language governing permissions and
- // limitations under the License.
+// This file is part of BoolNetwork.
+
+// Copyright (C) BoolNetwork (HK) Ltd.
+// SPDX-License-Identifier: Apache-2.0
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// 	http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 use core::ops::Neg;
+use bnk_chain_bridge::utils::disintegrate_btc_msgs_and_sigs;
 use secp256k1::curve::{Affine, Jacobian, Scalar, ECMULT_CONTEXT, ECMULT_GEN_CONTEXT};
 use secp256k1::{Error as ECError, PublicKey as ECPK, PublicKeyFormat, SecretKey as ECSK};
 use sha2::{Digest, Sha256};
-use sp_std::convert::TryFrom;
-use crate::disintegrate_btc_msgs_and_sigs;
 
-pub fn sr25519_verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> bool {
+pub fn sr25519_verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), String> {
     use sp_core::sr25519::{Public, Signature};
 
-    let pk = match Public::try_from(pubkey) {
-        Ok(pk) => pk,
-        Err(e) => {
-            log::error!("failed to parse sr25519 public: {:?}", e);
-            return false;
-        }
-    };
-    let signature = match Signature::try_from(sig) {
-        Ok(signature) => signature,
-        Err(e) => {
-            log::error!("failed to parse sr25519 signature: {:?}", e);
-            return false;
-        }
-    };
-    sp_io::crypto::sr25519_verify(&signature, msg, &pk)
+    let pk = Public::try_from(pubkey).map_err(|_| "sr25519 pubkey from bytes".to_string())?;
+    let signature = Signature::try_from(sig).map_err(|_| "sr25519 signature from bytes".to_string())?;
+    if !sp_io::crypto::sr25519_verify(&signature, msg, &pk) {
+        return Err("verify sr25519 signature failed".to_string());
+    }
+    Ok(())
 }
 
 // H(R, X, m)
@@ -59,33 +49,13 @@ fn sr_secp256k1_hash(r: &[u8], x: &[u8], m: &[u8]) -> Scalar {
     h
 }
 
-pub fn sr_secp256k1_verify(pubkey: &[u8], message: &[u8], signature: &[u8]) -> bool {
+pub fn sr_secp256k1_verify(pubkey: &[u8], message: &[u8], signature: &[u8]) -> Result<(), String> {
     if signature.len() != 65 {
-        log::error!("invalid length of signature.");
-        return false;
+        return Err("invalid length of sr secp256k1 signature".to_string());
     }
-
-    let r: ECSK = match ECSK::parse_slice(&signature[..32]) {
-        Ok(sr) => sr,
-        Err(e) => {
-            log::error!("failed to parse r from signature: {:?}", e);
-            return false;
-        }
-    };
-    let v: ECPK = match ECPK::parse_slice(&signature[32..], Some(PublicKeyFormat::Compressed)) {
-        Ok(sv) => sv,
-        Err(e) => {
-            log::error!("failed to parse v from signature: {:?}", e);
-            return false;
-        }
-    };
-    let pk: ECPK = match ECPK::parse_slice(pubkey, Some(PublicKeyFormat::Full)) {
-        Ok(pk) => pk,
-        Err(e) => {
-            log::error!("failed to parse public key: {:?}, error: {:?}", pubkey, e);
-            return false;
-        }
-    };
+    let r: ECSK = ECSK::parse_slice(&signature[..32]).map_err(|e| format!("failed to parse r from signature: {:?}", e))?;
+    let v: ECPK = ECPK::parse_slice(&signature[32..], Some(PublicKeyFormat::Compressed)).map_err(|e| format!("failed to parse v from signature: {:?}", e))?;
+    let pk: ECPK = ECPK::parse_slice(pubkey, Some(PublicKeyFormat::Full)).map_err(|e| format!("failed to parse public key: {:?}, error: {:?}", pubkey, e))?;
     let e = sr_secp256k1_hash(
         &v.serialize_compressed(),
         &pk.serialize_compressed(),
@@ -103,7 +73,10 @@ pub fn sr_secp256k1_verify(pubkey: &[u8], message: &[u8], signature: &[u8]) -> b
     let e_y_plus_v: Affine = Affine::from_gej(&e_y_plus_v_j);
 
     // R + H(R,X,m) * X = s * G
-    return e_y_plus_v == g_s;
+    if e_y_plus_v != g_s {
+        return Err("verify sr secp256k1 signature failed".to_string());
+    }
+    Ok(())
 }
 
 // SHA256 (SHA256("BIP0340/challenge")||SHA256("BIP0340/challenge")||R.x||P.x||M)
@@ -143,39 +116,16 @@ pub fn load_xonly_pubkey(pubkey: &[u8]) -> Result<ECPK, ECError> {
 }
 
 // https://github.com/joschisan/schnorr_secp256k1/blob/main/src/schnorr.rs#LL90C1-L90C1
-pub fn btc_schnorr_verify(pubkey: &[u8], message: &[u8], signature: &[u8]) -> bool {
+pub fn btc_schnorr_verify(pubkey: &[u8], message: &[u8], signature: &[u8]) -> Result<(), String> {
     if signature.len() != 64 {
-        log::error!("invalid length of signature.");
-        return false;
+        return Err("invalid length of btc schnorr signature".to_string());
     }
-
     if pubkey.len() != 32 {
-        log::error!("invalid length of public key.");
-        return false;
+        return Err("invalid length of btc schnorr public key".to_string());
     }
-
-    let p: ECPK = match load_xonly_pubkey(&pubkey) {
-        Ok(pk) => pk,
-        Err(e) => {
-            log::error!("failed to parse public key: {:?}, error: {:?}", pubkey, e);
-            return false;
-        }
-    };
-    
-    let r: ECPK = match load_xonly_pubkey(&signature[..32]) {
-        Ok(r) => r,
-        Err(e) => {
-            log::error!("failed to parse r from signature: {:?}", e);
-            return false;
-        }
-    };
-    let s: ECSK = match ECSK::parse_slice(&signature[32..]) {
-        Ok(s) => s,
-        Err(e) => {
-            log::error!("failed to parse s from signature: {:?}", e);
-            return false;
-        }
-    };
+    let p: ECPK = load_xonly_pubkey(&pubkey).map_err(|e| e.to_string())?;
+    let r: ECPK = load_xonly_pubkey(&signature[..32]).map_err(|e| e.to_string())?;
+    let s: ECSK = ECSK::parse_slice(&signature[32..]).map_err(|e| e.to_string())?;
 
     // compute e
     let e = bitcoin_sha256_tagged(&signature[..32], &pubkey, message);
@@ -191,45 +141,46 @@ pub fn btc_schnorr_verify(pubkey: &[u8], message: &[u8], signature: &[u8]) -> bo
     let rj = e_p_j.add_var(&g_j_s, None);
     let mut rx = Affine::from_gej(&rj);
     if rx.is_infinity() {
-        return false;
+        return Err("verify btc schnorr signature failed for rx is infinity".to_string());
     }
 
     rx.x.normalize_var();
     rx.y.normalize_var();
     let r: Affine = r.into();
 
-    return !rx.y.is_odd() && rx.x == r.x;
+    if rx.y.is_odd() {
+        return Err("verify btc schnorr signature failed for rx.y is odd".to_string());
+    }
+    if rx.x != r.x {
+        return Err("verify btc schnorr signature failed for rx.x is not eq to r.x".to_string());
+    }
+    return Ok(())
 }
 
-pub fn verify_btc_schnorr(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> bool {
+pub fn verify_btc_schnorr(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), String> {
     let (msgs, sigs) = match disintegrate_btc_msgs_and_sigs(msg, sig, false) {
         Some(data) => data,
         None => {
-            log::error!("disintegrate btc msgs and sigs failed");
-            return false
+            return Err("disintegrate btc msgs and sigs failed".to_string());
         }
     };
     if msgs.len() != sigs.len() {
-        log::error!("invalid length for btc msgs and sigs");
-        return false
+        return Err("invalid length for btc msgs and sigs".to_string());
     }
     let pubkey = match pubkey.len() {
         33 | 65 => &pubkey[1..33],
         _ => &pubkey
     };
     for i in 0..msgs.len() {
-        if !btc_schnorr_verify(pubkey, &msgs[i], &sigs[i]) {
-            log::error!("btc signature verify failed");
-            return false
-        }
+        btc_schnorr_verify(
+            pubkey,
+            &msgs[i],
+            &sigs[i],
+        ).map_err(|e| format!("btc signature verify failed: {e:?} for index: {i:?}"))?;
     }
-    true
+    Ok(())
 }
 
-// 0x
-// ca1883c8121363c529bc47fabfa50f372458873a908ff0caa39dc0747f2491c4e9a05e612a4c71b12d339cebd74115fe19e346edb622186bd185ecaec12b4533
-// 6dcac02ede07fa40c07bb0307b8d341e711c547af52fcd353881fe4346ed784fe822f9006883f548870f82202b5e8feaef5182a49d9eeb90616eccd3fcfbb94e
-// 2074a9ac84fa4c1c773cfa7780cd0df2fb30167825f9890a5ad6508b6f9583b618cb85b14896faaf718c2d3ec5676c468a0a899a69f0f5aaeafc1dc2197fba86
 #[test]
 pub fn test_btc_schnorr_verify() {
     let signature = "d569f1d9dd2feb75d8b8bedf3c08dbc256b1d73f416fe3146bc3327a7cb5d3d3815d430aa6e2eadc746468ef7efc398d6fa271b84aa1c28336ecdde027cf4753";

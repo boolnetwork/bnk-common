@@ -661,19 +661,13 @@ dependencies = [
  "bnk-chain-bridge",
  "fp-account",
  "hex",
- "impl-serde 0.3.2",
  "libsecp256k1 0.3.5",
- "log",
- "parity-scale-codec",
- "scale-info",
  "serde",
  "sha2 0.9.9",
  "sha3 0.9.1",
- "sp-application-crypto",
  "sp-core",
  "sp-io",
  "sp-runtime",
- "sp-std 8.0.0",
 ]
 
 [[package]]
@@ -1280,7 +1274,7 @@ version = "1.0.0-dev"
 source = "git+https://github.com/boolnetwork/frontier.git?branch=compatible-with-eip1559-header#bf4883f86241dfe370434fac3747eb83fefa9979"
 dependencies = [
  "hex",
- "impl-serde 0.4.0",
+ "impl-serde",
  "libsecp256k1 0.7.1",
  "log",
  "parity-scale-codec",
@@ -1657,15 +1651,6 @@ dependencies = [
  "integer-sqrt",
  "num-traits",
  "uint 0.10.0",
-]
-
-[[package]]
-name = "impl-serde"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4551f042f3438e64dbd6226b20527fc84a6e1fe65688b58746a2f53623f25f5c"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -2254,7 +2239,7 @@ checksum = "0b34d9fd68ae0b74a41b21c03c2f62847aa0ffea044eee893b4c140b37e244e2"
 dependencies = [
  "fixed-hash",
  "impl-codec 0.6.0",
- "impl-serde 0.4.0",
+ "impl-serde",
  "scale-info",
  "uint 0.9.5",
 ]
@@ -2930,7 +2915,7 @@ dependencies = [
  "futures",
  "hash-db",
  "hash256-std-hasher",
- "impl-serde 0.4.0",
+ "impl-serde",
  "itertools",
  "libsecp256k1 0.7.1",
  "log",
@@ -3202,7 +3187,7 @@ name = "sp-storage"
 version = "13.0.0"
 source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
 dependencies = [
- "impl-serde 0.4.0",
+ "impl-serde",
  "parity-scale-codec",
  "ref-cast",
  "serde",
@@ -3215,7 +3200,7 @@ name = "sp-storage"
 version = "19.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk#d5b96e9e7f24adc1799f8e426c5cb69b4f2dbf8a"
 dependencies = [
- "impl-serde 0.4.0",
+ "impl-serde",
  "parity-scale-codec",
  "ref-cast",
  "serde",

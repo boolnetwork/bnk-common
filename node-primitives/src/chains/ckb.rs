@@ -15,6 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![deny(unused_crate_dependencies)]
-pub mod chain;
-pub mod utils;
+use crate::chains::btc::verify_btc_ecdsa;
+
+pub fn verify_ckb_ecdsa(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), String> {
+    verify_btc_ecdsa(pubkey, msg, sig)
+}

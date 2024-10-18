@@ -8,41 +8,29 @@ version = "0.1.0"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-sp-application-crypto = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot", default-features = false}
 sp-core = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot", default-features = false }
-sp-std = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot", default-features = false }
 sp-runtime = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot", default-features = false }
 sp-io = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot", default-features = false, features = ['disable_oom', 'disable_panic_handler'] }
-libsecp256k1 = { version = "0.3.2", default-features = false, features = ["hmac"] }
 serde = { version = "1.0.195", default-features = false, features = ["alloc", "derive"], optional = true }
-codec = { package = "parity-scale-codec", version = "3.2.2", default-features = false, features = ["derive"] }
-scale-info = { version = "2.0", default-features = false, features = [ "derive" ] }
-log = { version = "0.4.14", default-features = false }
-impl-serde = { version = "0.3.0", default-features = false, optional = true }
-sha2 = { version = "0.9", default-features = false }
-sha3 = { version = "0.9", default-features = false }
-hex = { version = "0.4", default-features = false }
-bls-signatures = "0.6.0"
 fp-account = { git = "https://github.com/boolnetwork/frontier.git", branch = "compatible-with-eip1559-header",  default-features = false, features = ["serde"] }
+
+# crypto
+sha2 = { version = "0.9", default-features = false, optional = true }
+sha3 = { version = "0.9", default-features = false, optional = true }
+hex = { version = "0.4", default-features = false, optional = true }
+bls-signatures = { version = "0.6.0", optional = true }
+libsecp256k1 = { version = "0.3.2", default-features = false, features = ["hmac"], optional = true }
+
 bnk-chain-bridge = { path = "../chain-bridge" }
 
 [features]
-default = ["std"]
+default = ["std", "crypto"]
 std = [
-    "sp-application-crypto/std",
     "sp-core/std",
-    "sp-std/std",
     "sp-runtime/std",
     "sp-io/std",
-    "serde/std",
-    "codec/std",
-    "impl-serde/std",
     "fp-account/std",
+    "serde",
 ]
 
-serde = [
-    "impl-serde",
-    "scale-info/serde",
-    "sp-core/serde",
-    "sp-runtime/serde",
-]
+crypto = ["sha2", "sha3", "hex", "bls-signatures", "libsecp256k1"]

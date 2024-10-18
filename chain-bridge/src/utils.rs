@@ -1,19 +1,19 @@
- // This file is part of BoolNetwork.
- 
- // Copyright (C) BoolNetwork (HK) Ltd.
- // SPDX-License-Identifier: Apache-2.0
- 
- // Licensed under the Apache License, Version 2.0 (the "License");
- // you may not use this file except in compliance with the License.
- // You may obtain a copy of the License at
- 
- // 	http://www.apache.org/licenses/LICENSE-2.0
- 
- // Unless required by applicable law or agreed to in writing, software
- // distributed under the License is distributed on an "AS IS" BASIS,
- // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- // See the License for the specific language governing permissions and
- // limitations under the License.
+// This file is part of BoolNetwork.
+
+// Copyright (C) BoolNetwork (HK) Ltd.
+// SPDX-License-Identifier: Apache-2.0
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// 	http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 pub fn disintegrate_btc_msg(
     raw_msg: &str,
@@ -63,16 +63,9 @@ pub fn disintegrate_btc_msg(
             transfer_tx_to_sign.push(hex::encode(msg));
         }
 
-        // raw.append(&mut commit_tx_raw);
-        // raw.append(&mut reveal_tx_raw);
-        // raw.append(&mut transfer_tx_raw);
-        //
-        // // append three txs' raw len
-        // raw.append(&mut commit_tx_len);
-        // raw.append(&mut reveal_tx_len);
-        // raw.append(&mut transfer_tx_len);
+        // todo: use struct
+        // |commit_tx_raw|reveal_tx_raw|transfer_tx_raw|commit_tx_len|reveal_tx_len|transfer_tx_len|
         let tx_msgs_with_offset = &mut raw_msg[total_hash_num_to_sign * 32..].to_vec();
-
         if tx_msgs_with_offset.len() <= 3 * 4 {
             return Err(format!(
                 "brc20 raw msg off set error, raw msg len: {}",
@@ -158,6 +151,55 @@ pub fn disintegrate_btc_msg(
     }
 }
 
+fn disintegrate_btc_signatures(raw_sig: Vec<u8>, is_ecdsa: bool) -> Option<Vec<Vec<u8>>> {
+    let sig_len = if is_ecdsa { 65 } else { 64 };
+    if raw_sig.len() < sig_len || raw_sig.len() % sig_len != 0 {
+        return None;
+    }
+    let mut all_sigs = Vec::new();
+    let sig_num = raw_sig.len() / sig_len as usize;
+    for i in 0..sig_num {
+        let sig = &raw_sig.as_slice()[i * sig_len..(i + 1) * sig_len];
+        all_sigs.push(sig.to_vec());
+    }
+    Some(all_sigs)
+}
+
+pub fn disintegrate_btc_msgs_and_sigs(
+    msg: &[u8],
+    sig: &[u8],
+    is_ecdsa: bool,
+) -> Option<(Vec<Vec<u8>>, Vec<Vec<u8>>)> {
+    let msgs = match disintegrate_btc_msg(&hex::encode(msg)) {
+        Ok(msg) => {
+            let mut msgs = Vec::new();
+            for i in 0..msg.1.len() {
+                let batch_msg = &msg.1[i];
+                for j in 0..batch_msg.len() {
+                    match hex::decode(&batch_msg[j]) {
+                        Ok(msg) => msgs.push(msg),
+                        Err(_) => {
+                            return None;
+                        }
+                    }
+                }
+            }
+            msgs
+        }
+        Err(_) => {
+            return None;
+        }
+    };
+    let sigs = match disintegrate_btc_signatures(sig.to_vec(), is_ecdsa) {
+        Some(sigs) => sigs,
+        None => return None,
+    };
+    if msgs.len() != sigs.len() {
+        return None;
+    }
+    Some((msgs, sigs))
+}
+
 pub fn disintegrate_fil_msg(raw_msg: &str, engine: &str) -> Result<(Vec<u8>, Vec<u8>), String> {
     let mut raw_msg = hex::decode(raw_msg).map_err(|e| e.to_string())?;
     let hash_length = match engine {
@@ -178,7 +220,7 @@ pub fn disintegrate_fil_msg(raw_msg: &str, engine: &str) -> Result<(Vec<u8>, Vec
 
 pub const PREFIX: &str = "\x19Ethereum Signed Message:\n";
 
-pub fn to_eth_signed_message_hash<F, V: AsRef<[u8]>>(msg: &[u8], keccak256: F) -> Vec<u8> 
+pub fn to_eth_signed_message_hash<F, V: AsRef<[u8]>>(msg: &[u8], keccak256: F) -> Vec<u8>
     where F: Fn(&[u8]) -> V
 {
     let mut eth_message = format!("{}{}", PREFIX, msg.len()).into_bytes();
@@ -188,7 +230,7 @@ pub fn to_eth_signed_message_hash<F, V: AsRef<[u8]>>(msg: &[u8], keccak256: F) -
 
 pub const TRON_PREFIX: &str = "\x19TRON Signed Message:\n";
 
-pub fn to_tron_signed_message_hash<F, V: AsRef<[u8]>>(msg: &[u8], keccak256: F) -> Vec<u8> 
+pub fn to_tron_signed_message_hash<F, V: AsRef<[u8]>>(msg: &[u8], keccak256: F) -> Vec<u8>
     where F: Fn(&[u8]) -> V
 {
     let mut tron_message = format!("{}{}", TRON_PREFIX, msg.len()).into_bytes();
