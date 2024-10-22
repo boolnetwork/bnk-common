@@ -16,7 +16,6 @@
 // limitations under the License.
 
 //! Low-level types used throughout the code.
-#![deny(unused_crate_dependencies)]
 #![allow(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
 

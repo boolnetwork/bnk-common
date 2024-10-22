@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::{vec::Vec, string::String};
 use crate::{crypto::inner_ecdsa_verify, Hash256};
 
 pub fn to_tron_signed_message_hash(msg: Vec<u8>) -> Vec<u8> {

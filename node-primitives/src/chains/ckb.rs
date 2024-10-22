@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::string::String;
 use crate::chains::btc::verify_btc_ecdsa;
 
 pub fn verify_ckb_ecdsa(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), String> {

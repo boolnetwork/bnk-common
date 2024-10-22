@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::{string::{ToString, String}, format};
 use core::ops::Neg;
 use bnk_chain_bridge::utils::disintegrate_btc_msgs_and_sigs;
 use secp256k1::curve::{Affine, Jacobian, Scalar, ECMULT_CONTEXT, ECMULT_GEN_CONTEXT};

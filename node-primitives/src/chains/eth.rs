@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::{string::String, format, vec, vec::Vec};
 use sp_core::U256;
 use crate::{Hash256, inner_ecdsa_verify};
 

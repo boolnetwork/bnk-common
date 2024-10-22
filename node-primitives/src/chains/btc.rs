@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::string::{ToString, String};
 use bnk_chain_bridge::utils::disintegrate_btc_msgs_and_sigs;
 
 pub fn verify_btc_ecdsa(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), String> {

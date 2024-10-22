@@ -25,6 +25,7 @@ pub use ecdsa::*;
 pub use eddsa::*;
 pub use schnorr::*;
 pub use sp_io::hashing::sha2_256;
+use sp_core::bounded::alloc::vec::Vec;
 
 #[allow(missing_docs)]
 #[derive(Clone)]

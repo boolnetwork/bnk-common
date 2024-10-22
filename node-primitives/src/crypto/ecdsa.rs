@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::{string::{String, ToString}, vec::Vec};
 use super::Hash256;
 use crate::sha3_256;
 

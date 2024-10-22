@@ -15,6 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::string::{String, ToString};
+
 /// Verify ed25519 signature
 pub fn ed25519_verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), String> {
     use sp_core::ed25519::{Public, Signature};

@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sp_core::bounded::alloc::string::{String, ToString};
 use bls_signatures::{verify as verify_bls_sig, Serialize};
 
 pub fn bls_verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), String> {
