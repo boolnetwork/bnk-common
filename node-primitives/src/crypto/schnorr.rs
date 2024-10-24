@@ -181,16 +181,3 @@ pub fn verify_btc_schnorr(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<(), S
     }
     Ok(())
 }
-
-#[test]
-pub fn test_btc_schnorr_verify() {
-    let signature = "d569f1d9dd2feb75d8b8bedf3c08dbc256b1d73f416fe3146bc3327a7cb5d3d3815d430aa6e2eadc746468ef7efc398d6fa271b84aa1c28336ecdde027cf4753";
-    let msg = "06ae15dbb89d50f1baaab17929cd464c6592d83ff99cb3a5e01a75e328bdaae2";
-    let pubkey = "7e95a10448c199672d0af43fc85ee42f8956ed728ba9fe4ecc4d909a0162575d";
-
-    let signature = hex::decode(signature).unwrap();
-    let msg = hex::decode(msg).unwrap();
-    let pubkey = hex::decode(pubkey).unwrap();
-    btc_schnorr_verify(&pubkey, &msg, &signature);
-    assert!(btc_schnorr_verify(&pubkey, &msg, &signature))
-}

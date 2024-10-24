@@ -90,6 +90,7 @@ pub enum CustomError {
     NoValidStateVote = 47,
     UidConsensusNotInit = 48,
     UidConsensusAlreadyFinished = 49,
+    DuplicateEpochChange = 50,
     Unknown,
 }
 
@@ -147,6 +148,7 @@ impl fmt::Display for CustomError {
             CustomError::NoValidStateVote => write!(f, "No valid state vote"),
             CustomError::UidConsensusNotInit => write!(f, "Uid consensus mission not init"),
             CustomError::UidConsensusAlreadyFinished => write!(f, "Uid consensus mission already finished"),
+            CustomError::DuplicateEpochChange => write!(f, "Duplicate epoch change"),
             CustomError::Unknown => write!(f, "unknown error"),
         }
     }
@@ -206,6 +208,7 @@ impl CustomError {
             47 => Self::NoValidStateVote,
             48 => Self::UidConsensusNotInit,
             49 => Self::UidConsensusAlreadyFinished,
+            50 => Self::DuplicateEpochChange,
             _ => Self::Unknown,
         }
     }
