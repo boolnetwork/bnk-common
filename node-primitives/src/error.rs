@@ -90,7 +90,12 @@ pub enum CustomError {
     NoValidStateVote = 47,
     UidConsensusNotInit = 48,
     UidConsensusAlreadyFinished = 49,
-    DuplicateEpochChange = 50,
+    DeviceIsNotReady = 50,
+    DepositAmountTooLow = 51,
+    InvalidSignedMessage = 52,
+    BlockNumberOverOffset = 53,
+    TooManyExitingDevices = 54,
+    DuplicateEpochChange = 55,
     Unknown,
 }
 
@@ -148,6 +153,11 @@ impl fmt::Display for CustomError {
             CustomError::NoValidStateVote => write!(f, "No valid state vote"),
             CustomError::UidConsensusNotInit => write!(f, "Uid consensus mission not init"),
             CustomError::UidConsensusAlreadyFinished => write!(f, "Uid consensus mission already finished"),
+            CustomError::DeviceIsNotReady => write!(f, "Device not send heartbeat at last session"),
+            CustomError::DepositAmountTooLow => write!(f, "Deposit amount too low to the device"),
+            CustomError::InvalidSignedMessage => write!(f, "Decode signed message failed"),
+            CustomError::BlockNumberOverOffset => write!(f, "Block number over-offset the limit"),
+            CustomError::TooManyExitingDevices => write!(f, "Too mant exiting devices"),
             CustomError::DuplicateEpochChange => write!(f, "Duplicate epoch change"),
             CustomError::Unknown => write!(f, "unknown error"),
         }
@@ -208,7 +218,12 @@ impl CustomError {
             47 => Self::NoValidStateVote,
             48 => Self::UidConsensusNotInit,
             49 => Self::UidConsensusAlreadyFinished,
-            50 => Self::DuplicateEpochChange,
+            50 => Self::DeviceIsNotReady,
+            51 => Self::DepositAmountTooLow,
+            52 => Self::InvalidSignedMessage,
+            53 => Self::BlockNumberOverOffset,
+            54 => Self::TooManyExitingDevices,
+            55 => Self::DuplicateEpochChange,
             _ => Self::Unknown,
         }
     }
