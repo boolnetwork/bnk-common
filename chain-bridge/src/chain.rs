@@ -51,6 +51,7 @@ pub const BITURBO_MAINNET: u32 = 725021;
 pub const MANTA_MAINNET: u32 = 169;
 pub const BEVM2_MAINNET: u32 = 11501;
 pub const SLINKY_MAINNET: u32 = 88335;
+pub const BOOL_EVM_BETA_MAINNET: u32 = 11100;
 
 // Testnet
 pub const ETHEREUM_GOERLI: u32 = 5;
@@ -88,6 +89,7 @@ pub const TAKER_TESTNET: u32 = 2748;
 pub const BITLAYER_TESTNET: u32 = 200810;
 pub const ZKLINK_TESTNET: u32 = 810181;
 pub const BOOL_EVM_BETA_TESTNET: u32 = 481;
+pub const BOOL_EVM_BETA_TESTNET2: u32 = 11101;
 pub const MERLIN_TESTNET: u32 = 686868;
 pub const BITURBO_TESTNET: u32 = 725019;
 pub const MANTA_SEPOLIA: u32 = 3441006;
@@ -171,7 +173,7 @@ pub const CKB_TESTNET: u32 = 0xe43cbf03;
 // "Fractal-Testnet"
 pub const FRACTAL_TESTNET: u32 = 0xd315bbb0;
 
-pub const CHAIN_IDS: [u32; 108] = [
+pub const CHAIN_IDS: [u32; 110] = [
     ETHEREUM_MAINNET,
     OPTIMISM_MAINNET,
     POLYGON_MAINNET,
@@ -268,6 +270,8 @@ pub const CHAIN_IDS: [u32; 108] = [
     CKB_MAINNET,
     CKB_TESTNET,
     BOOL_EVM_BETA_TESTNET,
+    BOOL_EVM_BETA_TESTNET2,
+    BOOL_EVM_BETA_MAINNET,
     MERLIN_MAINNET,
     MERLIN_TESTNET,
     BITURBO_MAINNET,
@@ -369,7 +373,8 @@ impl ChainType {
             | MANTA_MAINNET | MANTA_SEPOLIA
             | BISON_TESTNET
             | SLINKY_MAINNET | SLINKY_TESTNET
-            | DUCK_TESTNET => Self::Eth,
+            | DUCK_TESTNET
+            | BOOL_EVM_BETA_TESTNET2 | BOOL_EVM_BETA_MAINNET=> Self::Eth,
             BITCOIN_MAINNET | BITCOIN_TESTNET | DOGECOIN_MAINNET | DOGECOIN_TESTNET => Self::Btc,
             SOLANA_MAINNET | SOLANA_TESTNET | SOLANA_DEVNET => Self::Solana,
             FILECOIN_TESTNET | FILECOIN_MAINNET => Self::Fil,
