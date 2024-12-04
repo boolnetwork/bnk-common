@@ -649,6 +649,7 @@ name = "bnk-chain-bridge"
 version = "0.1.0"
 dependencies = [
  "hex",
+ "parity-scale-codec",
  "serde",
 ]
 

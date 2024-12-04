@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use codec::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 
 // Common
@@ -288,7 +289,7 @@ pub const CHAIN_IDS: [u32; 111] = [
     DUCK_TESTNET,
 ];
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Debug, Clone, Encode, Decode, Serialize, Deserialize, Default, PartialEq)]
 #[repr(u16)]
 pub enum ChainType {
     #[default]
