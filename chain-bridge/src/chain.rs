@@ -53,6 +53,7 @@ pub const MANTA_MAINNET: u32 = 169;
 pub const BEVM2_MAINNET: u32 = 11501;
 pub const SLINKY_MAINNET: u32 = 88335;
 pub const BOOL_EVM_BETA_MAINNET: u32 = 11100;
+pub const ULTRA_LIQUID_MAINNET: u32 = 11101;
 
 // Testnet
 pub const ETHEREUM_GOERLI: u32 = 5;
@@ -91,7 +92,7 @@ pub const BITLAYER_TESTNET: u32 = 200810;
 pub const ZKLINK_TESTNET: u32 = 810181;
 pub const BOOL_EVM_BETA_TESTNET: u32 = 481;
 pub const BOOL_EVM_BETA_DEVNET: u32 = 482;
-pub const BOOL_EVM_BETA_TESTNET2: u32 = 11101;
+pub const ULTRA_LIQUID_TESTNET: u32 = 483;
 pub const MERLIN_TESTNET: u32 = 686868;
 pub const BITURBO_TESTNET: u32 = 725019;
 pub const MANTA_SEPOLIA: u32 = 3441006;
@@ -175,7 +176,7 @@ pub const CKB_TESTNET: u32 = 0xe43cbf03;
 // "Fractal-Testnet"
 pub const FRACTAL_TESTNET: u32 = 0xd315bbb0;
 
-pub const CHAIN_IDS: [u32; 111] = [
+pub const CHAIN_IDS: [u32; 112] = [
     ETHEREUM_MAINNET,
     OPTIMISM_MAINNET,
     POLYGON_MAINNET,
@@ -224,6 +225,7 @@ pub const CHAIN_IDS: [u32; 111] = [
     QSZL_MAINNET,
     BEVM_MAINNET,
     BEVM2_MAINNET,
+    ULTRA_LIQUID_MAINNET,
     BEVM_TESTNET,
     FILECOIN_EVM_CALIBRATION,
     BIFROST_POLKADOT,
@@ -273,7 +275,6 @@ pub const CHAIN_IDS: [u32; 111] = [
     CKB_TESTNET,
     BOOL_EVM_BETA_DEVNET,
     BOOL_EVM_BETA_TESTNET,
-    BOOL_EVM_BETA_TESTNET2,
     BOOL_EVM_BETA_MAINNET,
     MERLIN_MAINNET,
     MERLIN_TESTNET,
@@ -287,6 +288,7 @@ pub const CHAIN_IDS: [u32; 111] = [
     FRACTAL_TESTNET,
     FRACTAL_MAINNET,
     DUCK_TESTNET,
+    ULTRA_LIQUID_TESTNET,
 ];
 
 #[derive(Debug, Clone, Encode, Decode, Serialize, Deserialize, Default, PartialEq)]
@@ -377,7 +379,8 @@ impl ChainType {
             | BISON_TESTNET
             | SLINKY_MAINNET | SLINKY_TESTNET
             | DUCK_TESTNET
-            | BOOL_EVM_BETA_TESTNET2 | BOOL_EVM_BETA_MAINNET=> Self::Eth,
+            | BOOL_EVM_BETA_MAINNET
+            | ULTRA_LIQUID_MAINNET | ULTRA_LIQUID_TESTNET => Self::Eth,
             BITCOIN_MAINNET | BITCOIN_TESTNET | DOGECOIN_MAINNET | DOGECOIN_TESTNET => Self::Btc,
             SOLANA_MAINNET | SOLANA_TESTNET | SOLANA_DEVNET => Self::Solana,
             FILECOIN_TESTNET | FILECOIN_MAINNET => Self::Fil,
